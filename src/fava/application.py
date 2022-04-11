@@ -12,7 +12,7 @@ Attributes:
 
 """
 from __future__ import annotations
-
+import logging
 import datetime
 import functools
 import threading
@@ -213,7 +213,14 @@ def _perform_global_filters() -> None:
     if ledger:
         # check (and possibly reload) source file
         if request.blueprint != "json_api":
-            ledger.changed()
+            ledger.changed('reload' in request.args)
+            if 'reload' in request.args:
+                logging.info("Force reload")
+                url = werkzeug.urls.url_parse(request.url)
+                qs_dict = url.decode_query()
+                del qs_dict['reload']
+                url = url.replace(query=werkzeug.urls.url_encode(qs_dict))
+                return redirect(werkzeug.urls.url_unparse(url))
 
         ledger.filter(
             account=request.args.get("account"),

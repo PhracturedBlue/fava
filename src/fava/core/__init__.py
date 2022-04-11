@@ -322,7 +322,7 @@ class FavaLedger:
             ],
         )
 
-    def changed(self) -> bool:
+    def changed(self, force=False) -> bool:
         """Check if the file needs to be reloaded.
 
         Returns:
@@ -333,7 +333,7 @@ class FavaLedger:
         if self._is_encrypted:
             return False
         changed = self._watcher.check()
-        if changed:
+        if changed or force:
             self.load_file()
         return changed
 
